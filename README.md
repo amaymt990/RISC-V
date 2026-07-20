@@ -1,30 +1,46 @@
 # RV32I 5-Stage Pipelined Processor
 
-A 32-bit RISC-V (RV32I) processor being developed in Verilog as a portfolio project.
+A custom implementation of a 32-bit RV32I RISC-V processor in Verilog.
 
-## Progress
+## Features (Planned)
 
-- [x] Project setup
-- [x] ALU
-- [ ] Register File
-- [ ] Program Counter
+- 5-stage pipelined architecture
+- Hazard Detection Unit
+- Forwarding Unit
+- Branch Handling
+- RTL Simulation using Icarus Verilog
+- Waveform Analysis using GTKWave
+- Logic Synthesis using Yosys
+- Open-source ASIC flow (OpenLane/Sky130) *(planned)*
+
+## Current Progress
+
+- [x] Arithmetic Logic Unit (ALU)
+- [x] Register File
+- [x] Program Counter
 - [ ] Instruction Memory
 - [ ] Data Memory
 - [ ] Immediate Generator
 - [ ] Control Unit
+- [ ] ALU Control
+- [ ] Branch Comparator
 - [ ] Single-Cycle CPU
-- [ ] 5-Stage Pipeline
-- [ ] Hazard Detection Unit
+- [ ] Pipeline Registers
 - [ ] Forwarding Unit
+- [ ] Hazard Detection Unit
+- [ ] 5-Stage Pipeline
 - [ ] Verification
-- [ ] RTL Synthesis
+- [ ] Synthesis
 - [ ] Physical Design
 
 ## Tools
 
-- Verilog
+- Verilog HDL
 - Icarus Verilog
 - GTKWave
-- Yosys
+- VS Code
 - Git
-- GitHub
+
+## Status
+
+🚧 Under Development
