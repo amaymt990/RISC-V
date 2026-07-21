@@ -1,0 +1,46 @@
+#! /opt/homebrew/Cellar/icarus-verilog/13.0/bin/vvp
+:ivl_version "13.0 (stable)" "(v13_0)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/13.0/lib/ivl/system.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/13.0/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/13.0/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/13.0/lib/ivl/v2005_math.vpi";
+:vpi_module "/opt/homebrew/Cellar/icarus-verilog/13.0/lib/ivl/va_math.vpi";
+S_0x100508ab0 .scope module, "branch_comparator_tb" "branch_comparator_tb" 2 3;
+ .timescale -9 -12;
+v0x10050d9d0_0 .net "branch_taken", 0 0, L_0x10050dbb0;  1 drivers
+v0x10050da70_0 .var "rs1_data", 31 0;
+v0x10050db10_0 .var "rs2_data", 31 0;
+S_0x100506bb0 .scope module, "uut" "branch_comparator" 2 10, 3 3 0, S_0x100508ab0;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 32 "rs1_data";
+    .port_info 1 /INPUT 32 "rs2_data";
+    .port_info 2 /OUTPUT 1 "branch_taken";
+v0x100506d30_0 .net "branch_taken", 0 0, L_0x10050dbb0;  alias, 1 drivers
+v0x10050d880_0 .net "rs1_data", 31 0, v0x10050da70_0;  1 drivers
+v0x10050d930_0 .net "rs2_data", 31 0, v0x10050db10_0;  1 drivers
+L_0x10050dbb0 .cmp/eq 32, v0x10050da70_0, v0x10050db10_0;
+    .scope S_0x100508ab0;
+T_0 ;
+    %pushi/vec4 10, 0, 32;
+    %store/vec4 v0x10050da70_0, 0, 32;
+    %pushi/vec4 10, 0, 32;
+    %store/vec4 v0x10050db10_0, 0, 32;
+    %delay 10000, 0;
+    %vpi_call 2 24 "$display", "Equal   -> Branch = %b", v0x10050d9d0_0 {0 0 0};
+    %pushi/vec4 10, 0, 32;
+    %store/vec4 v0x10050da70_0, 0, 32;
+    %pushi/vec4 20, 0, 32;
+    %store/vec4 v0x10050db10_0, 0, 32;
+    %delay 10000, 0;
+    %vpi_call 2 30 "$display", "Not Equal -> Branch = %b", v0x10050d9d0_0 {0 0 0};
+    %vpi_call 2 32 "$finish" {0 0 0};
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "testbench/branch_comparator_tb.v";
+    "rtl/branch_comparator.v";
