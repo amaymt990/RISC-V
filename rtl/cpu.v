@@ -27,6 +27,8 @@ wire zero;
 
 // Memory
 wire [31:0] memory_data;
+wire [31:0] write_back_data;
+
 
 // Branch
 wire branch_taken;
@@ -43,6 +45,11 @@ wire [1:0] ALUOp;
 
 // ALU Control
 wire [3:0] ALUCtrl;
+wire [31:0] alu_input_b;
+
+assign alu_input_b = ALUSrc ? immediate : read_data2;
+assign write_back_data = MemtoReg ? memory_data : alu_result;
+assign next_pc = pc + 4;
 
 program_counter pc_unit(
 
@@ -91,11 +98,60 @@ register_file rf(
     .rs2(instruction[24:20]),
     .rd(instruction[11:7]),
 
-    .write_data(MemtoReg ? memory_data : alu_result),
+    .write_data(write_back_data),
 
     .read_data1(read_data1),
     .read_data2(read_data2)
 
 );
+
+alu_control alu_ctrl(
+
+    .ALUOp(ALUOp),
+    .funct3(instruction[14:12]),
+    .funct7(instruction[31:25]),
+
+    .ALUCtrl(ALUCtrl)
+
+);
+
+
+alu alu_unit(
+
+    .a(read_data1),
+    .b(alu_input_b),
+    .alu_control(ALUCtrl),
+
+    .result(alu_result),
+    .zero(zero)
+
+);
+
+
+
+data_memory dmem(
+
+    .clk(clk),
+    .mem_write(MemWrite),
+    .mem_read(MemRead),
+
+    .address(alu_result),
+    .write_data(read_data2),
+
+    .read_data(memory_data)
+
+);
+
+
+branch_comparator branch_cmp(
+
+    .rs1_data(read_data1),
+    .rs2_data(read_data2),
+
+    .branch_taken(branch_taken)
+
+);
+
+
 
 endmodule
