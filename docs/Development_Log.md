@@ -79,3 +79,31 @@ Instruction
 - Connect ALU.
 - Add ALU input multiplexer.
 - Complete Execute stage.
+
+
+## Day 7 – Single-Cycle CPU Verification
+
+### Completed
+- Integrated ALU Control
+- Connected ALU
+- Added ALU input multiplexer
+- Connected Data Memory
+- Added Write-Back multiplexer
+- Added sequential PC update
+- Developed CPU testbench
+
+### Verification Program
+
+```assembly
+addi x1, x0, 5
+addi x2, x0, 10
+add  x3, x1, x2
+```
+
+### Simulation Results
+
+```
+x1 = 5
+x2 = 10
+x3 = 15
+```
