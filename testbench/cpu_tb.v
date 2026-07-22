@@ -11,23 +11,26 @@ cpu uut(
 );
 
 // Clock
+// Clock
 always #5 clk = ~clk;
 
 initial begin
+    $dumpfile("cpu.vcd");
+    $dumpvars(0, cpu_tb);
+
     clk = 0;
     reset = 1;
 
     #10;
     reset = 0;
 
-    // Run for a few clock cycles
     #100;
 
-    $display("----------------------------");
-    $display("x1 = %0d", uut.rf.registers[1]);
-    $display("x2 = %0d", uut.rf.registers[2]);
-    $display("x3 = %0d", uut.rf.registers[3]);
-    $display("----------------------------");
+    $display("x1 = %d", uut.rf.registers[1]);
+    $display("x2 = %d", uut.rf.registers[2]);
+    $display("x3 = %d", uut.rf.registers[3]);
+
+    $display("Memory[100] = %d", uut.dmem.memory[100]);
 
     $finish;
 end
