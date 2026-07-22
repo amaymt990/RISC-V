@@ -10,6 +10,8 @@ module cpu(
 // Program Counter
 wire [31:0] pc;
 wire [31:0] next_pc;
+wire [31:0] pc_plus_4;
+wire [31:0] branch_target;
 
 // Instruction
 wire [31:0] instruction;
@@ -47,10 +49,11 @@ wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 wire [31:0] alu_input_b;
 
-assign alu_input_b = ALUSrc ? immediate : read_data2;
+assign alu_input_b   = ALUSrc ? immediate : read_data2;
 assign write_back_data = MemtoReg ? memory_data : alu_result;
-assign next_pc = pc + 4;
-
+assign pc_plus_4     = pc + 4;
+assign branch_target = pc + immediate;
+assign next_pc = (Branch && branch_taken) ? branch_target : pc_plus_4;
 program_counter pc_unit(
 
     .clk(clk),
@@ -92,6 +95,7 @@ immediate_generator imm_gen(
 register_file rf(
 
     .clk(clk),
+    .reset(reset),
     .we(RegWrite),
 
     .rs1(instruction[19:15]),
