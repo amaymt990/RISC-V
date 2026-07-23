@@ -11,6 +11,7 @@ module ex_mem_register(
     input [4:0] rd_in,
     input [31:0] branch_target_in,
     input branch_taken_in,
+    input [31:0] pc_plus4_in,
 
     // Control
     input RegWrite_in,
@@ -26,6 +27,7 @@ module ex_mem_register(
     output reg [4:0] rd_out,
     output reg [31:0] branch_target_out,
     output reg branch_taken_out,
+    output reg [31:0] pc_plus4_out,
 
     output reg RegWrite_out,
     output reg MemRead_out,
@@ -47,6 +49,7 @@ begin
 
         branch_target_out <= 0;
         branch_taken_out <= 0;
+        pc_plus4_out <= 0;
 
         RegWrite_out <= 0;
         MemRead_out <= 0;
@@ -63,6 +66,7 @@ begin
 
         branch_target_out <= branch_target_in;
         branch_taken_out <= branch_taken_in;
+        pc_plus4_out <= pc_plus4_in;
 
         RegWrite_out <= RegWrite_in;
         MemRead_out <= MemRead_in;

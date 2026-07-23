@@ -4,6 +4,7 @@ module id_ex_register(
 
     input clk,
     input reset,
+    input flush,   // 1 = insert bubble (load-use stall or branch/jump taken)
 
     // Data
     input [31:0] pc_in,
@@ -55,7 +56,7 @@ module id_ex_register(
 
 always @(posedge clk or posedge reset) begin
 
-    if(reset) begin
+    if(reset || flush) begin
 
         pc_out <= 0;
         read_data1_out <= 0;

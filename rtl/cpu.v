@@ -65,6 +65,7 @@ program_counter pc_unit(
     .clk(clk),
     .reset(reset),
     .next_pc(next_pc),
+    .pc_write(1'b1),
     .pc(pc)
 
 );
