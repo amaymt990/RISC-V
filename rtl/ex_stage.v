@@ -5,6 +5,7 @@ module ex_stage(
     input [31:0] read_data1,
     input [31:0] read_data2,
     input [31:0] immediate,
+    input [31:0] pc,
 
     input [2:0] funct3,
     input [6:0] funct7,
@@ -14,7 +15,8 @@ module ex_stage(
 
     output [31:0] alu_result,
     output zero,
-    output branch_taken
+    output branch_taken,
+    output [31:0] branch_target
 
 );
 
@@ -26,6 +28,7 @@ wire [3:0] alu_ctrl;
 //-----------------------------------------
 
 assign operand2 = ALUSrc ? immediate : read_data2;
+assign branch_target = pc + immediate;
 
 //-----------------------------------------
 // ALU Control

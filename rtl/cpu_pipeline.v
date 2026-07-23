@@ -7,36 +7,48 @@ module cpu_pipeline(
 
 );
 
-//==============================
-// IF Stage
-//==============================
+//====================================================
+// IF Stage Wires
+//====================================================
 
 wire [31:0] pc;
-wire [31:0] next_pc;
 wire [31:0] instruction;
+wire [31:0] next_pc;
 
-assign next_pc = pc + 4;
-
-program_counter pc_unit(
-    .clk(clk),
-    .reset(reset),
-    .next_pc(next_pc),
-    .pc(pc)
-);
-
-instruction_memory imem(
-    .pc(pc),
-    .instruction(instruction)
-);
-
-//==============================
-// IF/ID Pipeline Register
-//==============================
+//====================================================
+// IF/ID Wires
+//====================================================
 
 wire [31:0] if_id_pc;
 wire [31:0] if_id_instruction;
 
-if_id_register if_id(
+//====================================================
+// PC Logic
+//====================================================
+
+assign next_pc = pc + 32'd4;
+
+//====================================================
+// IF Stage
+//====================================================
+
+if_stage IF(
+
+    .clk(clk),
+    .reset(reset),
+
+    .next_pc(next_pc),
+
+    .pc(pc),
+    .instruction(instruction)
+
+);
+
+//====================================================
+// IF/ID Register
+//====================================================
+
+if_id_register IF_ID(
 
     .clk(clk),
     .reset(reset),
