@@ -15,6 +15,9 @@ module id_ex_register(
     input [4:0] rs2_in,
     input [4:0] rd_in,
 
+    input [2:0] funct3_in,
+    input [6:0] funct7_in,
+
     // Control
     input RegWrite_in,
     input ALUSrc_in,
@@ -24,6 +27,7 @@ module id_ex_register(
     input Branch_in,
     input Jump_in,
     input [1:0] ALUOp_in,
+ 
 
     // Outputs
     output reg [31:0] pc_out,
@@ -35,6 +39,9 @@ module id_ex_register(
     output reg [4:0] rs2_out,
     output reg [4:0] rd_out,
 
+    output reg [2:0] funct3_out,
+    output reg [6:0] funct7_out,
+
     output reg RegWrite_out,
     output reg ALUSrc_out,
     output reg MemRead_out,
@@ -43,7 +50,7 @@ module id_ex_register(
     output reg Branch_out,
     output reg Jump_out,
     output reg [1:0] ALUOp_out
-
+    
 );
 
 always @(posedge clk or posedge reset) begin
@@ -59,6 +66,9 @@ always @(posedge clk or posedge reset) begin
         rs2_out <= 0;
         rd_out <= 0;
 
+        funct3_out <= 0;
+        funct7_out <= 0;
+
         RegWrite_out <= 0;
         ALUSrc_out <= 0;
         MemRead_out <= 0;
@@ -67,6 +77,7 @@ always @(posedge clk or posedge reset) begin
         Branch_out <= 0;
         Jump_out <= 0;
         ALUOp_out <= 0;
+        
 
     end
     else begin
@@ -80,6 +91,9 @@ always @(posedge clk or posedge reset) begin
         rs2_out <= rs2_in;
         rd_out <= rd_in;
 
+        funct3_out <= funct3_in;
+        funct7_out <= funct7_in;
+
         RegWrite_out <= RegWrite_in;
         ALUSrc_out <= ALUSrc_in;
         MemRead_out <= MemRead_in;
@@ -88,6 +102,7 @@ always @(posedge clk or posedge reset) begin
         Branch_out <= Branch_in;
         Jump_out <= Jump_in;
         ALUOp_out <= ALUOp_in;
+        
 
     end
 
