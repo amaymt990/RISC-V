@@ -1,0 +1,142 @@
+$date
+	Thu Jul 23 14:00:56 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module cpu_pipeline_tb $end
+$var reg 1 ! clk $end
+$var reg 1 " reset $end
+$scope module uut $end
+$var wire 1 ! clk $end
+$var wire 1 " reset $end
+$var wire 32 # pc [31:0] $end
+$var wire 32 $ next_pc [31:0] $end
+$var wire 32 % instruction [31:0] $end
+$var wire 32 & if_id_pc [31:0] $end
+$var wire 32 ' if_id_instruction [31:0] $end
+$scope module if_id $end
+$var wire 1 ! clk $end
+$var wire 1 " reset $end
+$var wire 32 ( pc_in [31:0] $end
+$var wire 32 ) instruction_in [31:0] $end
+$var reg 32 * instruction_out [31:0] $end
+$var reg 32 + pc_out [31:0] $end
+$upscope $end
+$scope module imem $end
+$var wire 32 , instruction [31:0] $end
+$var wire 32 - pc [31:0] $end
+$upscope $end
+$scope module pc_unit $end
+$var wire 1 ! clk $end
+$var wire 32 . next_pc [31:0] $end
+$var wire 1 " reset $end
+$var reg 32 / pc [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b0 /
+b100 .
+b0 -
+b100000000000000011101111 ,
+b0 +
+b0 *
+b100000000000000011101111 )
+b0 (
+b0 '
+b0 &
+b100000000000000011101111 %
+b100 $
+b0 #
+1"
+0!
+$end
+#5000
+1!
+#10000
+0!
+0"
+#15000
+b100000000000100010011 %
+b100000000000100010011 )
+b100000000000100010011 ,
+b1000 $
+b1000 .
+b100 #
+b100 (
+b100 -
+b100 /
+b100000000000000011101111 '
+b100000000000000011101111 *
+1!
+#20000
+0!
+#25000
+b110001100000000000110010011 %
+b110001100000000000110010011 )
+b110001100000000000110010011 ,
+b100000000000100010011 '
+b100000000000100010011 *
+b100 &
+b100 +
+b1100 $
+b1100 .
+b1000 #
+b1000 (
+b1000 -
+b1000 /
+1!
+#30000
+0!
+#35000
+bx %
+bx )
+bx ,
+b10000 $
+b10000 .
+b1100 #
+b1100 (
+b1100 -
+b1100 /
+b110001100000000000110010011 '
+b110001100000000000110010011 *
+b1000 &
+b1000 +
+1!
+#40000
+0!
+#45000
+bx '
+bx *
+b1100 &
+b1100 +
+b10100 $
+b10100 .
+b10000 #
+b10000 (
+b10000 -
+b10000 /
+1!
+#50000
+0!
+#55000
+b11000 $
+b11000 .
+b10100 #
+b10100 (
+b10100 -
+b10100 /
+b10000 &
+b10000 +
+1!
+#60000
+0!
