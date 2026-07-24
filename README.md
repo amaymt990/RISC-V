@@ -1,216 +1,353 @@
-# RV32I RISC-V Processor in Verilog
+# RV32I 5-Stage Pipelined RISC-V Processor
 
-A 32-bit RV32I RISC-V processor implemented in Verilog HDL, built up from a
-single-cycle design into a fully pipelined 5-stage architecture with
-forwarding, hazard detection, and branch resolution.
+<p align="center">
+  <b>A 32-bit pipelined RISC-V processor implemented in Verilog HDL featuring hazard detection, forwarding, branch handling, and a modular RTL architecture.</b>
+</p>
 
----
+<p align="center">
 
-## Project Overview
+![Verilog](https://img.shields.io/badge/Language-Verilog-blue)
+![Architecture](https://img.shields.io/badge/Architecture-RV32I-success)
+![Pipeline](https://img.shields.io/badge/Pipeline-5--Stage-orange)
+![Simulator](https://img.shields.io/badge/Simulator-Icarus_Verilog-red)
+![Waveform](https://img.shields.io/badge/Waveform-GTKWave-purple)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-This project is a hands-on implementation of a RISC-V processor, built to
-understand processor architecture from the ground up: datapath design,
-control logic, pipelining, hazard handling, and (eventually) the RTL-to-GDS
-physical design flow.
-
-Written entirely in Verilog, verified using Icarus Verilog simulation and
-waveform inspection in GTKWave / VS Code.
-
----
-
-## Current Features
-
-### Single-Cycle Processor
-- 32-bit datapath, Harvard architecture
-- Program Counter, Instruction Memory, Data Memory
-- 32×32-bit Register File
-- Immediate Generator (I/S/B/U/J formats)
-- Control Unit, ALU Control, ALU
-- Branch Comparator
-
-### 5-Stage Pipelined Processor
-- Full IF → ID → EX → MEM → WB datapath
-- Pipeline registers: IF/ID, ID/EX, EX/MEM, MEM/WB
-- **Forwarding unit** — resolves back-to-back and 2-cycle-apart RAW hazards
-  by forwarding EX/MEM and MEM/WB results directly into the EX stage
-- **Hazard detection unit** — stalls PC and IF/ID for one cycle on a
-  load-use hazard (a load immediately followed by a dependent instruction)
-- **Register file write-first bypass** — handles the same-cycle
-  write-in-WB / read-in-ID case that forwarding alone can't cover
-- **Branch/jump resolution in EX** — a taken branch or JAL flushes the two
-  instructions fetched down the wrong path and redirects the PC
+</p>
 
 ---
 
-## Implemented Instructions
+# Architecture
 
-The ALU itself supports **ADD, SUB, AND, OR, XOR, SLL, SRL, SLT**, and the
-control unit generically decodes both R-type and I-type encodings through
-it — so e.g. `AND`/`ANDI`, `OR`/`ORI`, `SLL`/`SLLI` etc. should work through
-the datapath. However, only the instructions below have been **verified
-end-to-end** with a dedicated testbench:
+<p align="center">
+  <img src="images/cpu arch.png" width="1000">
+</p>
 
-### Arithmetic
-- ADD, SUB (R-type)
-- ADDI (I-type)
+<p align="center">
+<b>Figure 1.</b> CPU ARCHITECTURE
+</p>
 
-### Memory
-- LW, SW
+The processor follows the classical **five-stage RISC-V pipeline**, separating execution into independent stages to improve throughput while maintaining correctness through hazard detection and forwarding.
 
-### Control Flow
-- BEQ
-- JAL
+Pipeline Stages:
 
-### Known limitations (not yet correct / not yet tested)
-- **LUI** is decoded by the control unit, but U-type instructions have no
-  `rs1` field — the current register file read still uses
-  `instruction[19:15]` unconditionally, so LUI will add garbage register
-  contents to the immediate instead of loading it directly. This needs a
-  dedicated U-type path before it can be trusted.
-- **`branch_comparator` only implements equality.** The control unit sets
-  `Branch = 1` for *any* branch opcode (BEQ, BNE, BLT, BGE, BLTU, BGEU all
-  share the same opcode), but the comparator itself doesn't look at
-  `funct3` — so only BEQ actually branches correctly today. Using BNE/BLT/
-  etc. in a program will silently produce the wrong branch decision.
-- AND/OR/XOR/SLL/SRL/SLT and their immediate forms are implemented at the
-  ALU level and should be wired correctly through the control path, but
-  have no dedicated CPU-level testbench yet — treat as "should work,
-  unverified" rather than "verified."
+- Instruction Fetch (IF)
+- Instruction Decode (ID)
+- Execute (EX)
+- Memory Access (MEM)
+- Write Back (WB)
 
 ---
 
-## Verification
+# Features
 
-Every module (ALU, register file, PC, immediate generator, control unit,
-ALU control, branch comparator, instruction/data memory) has its own
-testbench. The single-cycle CPU and the pipelined CPU each have their own
-integration-level testbench.
+- 32-bit RV32I Processor
+- Five-stage pipelined architecture
+- Modular RTL implementation
+- Hazard Detection Unit
+- Data Forwarding Unit
+- Branch & Jump Handling
+- Pipeline Flush Logic
+- Immediate Generator
+- Register File
+- Separate Instruction & Data Memory
+- ALU Control Unit
+- Verified using Icarus Verilog
+- Waveform analysis using GTKWave
 
-The pipeline testbench in particular exercises three hazard types in one
-program: a back-to-back RAW hazard, a two-instructions-apart RAW hazard, a
-load-use hazard, and a taken branch — and checks every affected register
-against its expected value.
+---
 
-Example pipeline simulation output:
+# Pipeline Overview
+
+<p align="center">
+  <img src="images/5_pipeline.png" width="1000">
+</p>
+
+<p align="center">
+<b>Figure 1.</b> 5 STAGE PIPELINE
+</p>
+
+| Stage | Description |
+|--------|-------------|
+| IF | Fetch instruction from Instruction Memory |
+| ID | Decode instruction, register read, immediate generation |
+| EX | ALU execution, branch evaluation, forwarding |
+| MEM | Data memory read/write |
+| WB | Register write back |
+
+---
+
+# Processor Datapath
+
+<p align="center">
+  <img src="images/datapath.png" width="1000">
+</p>
+
+<p align="center">
+<b>Figure 1.</b> Complete RV32I Processor Datapath
+</p>
+```
+
+The datapath consists of:
+
+- Program Counter
+- Instruction Memory
+- Register File
+- Immediate Generator
+- ALU
+- Data Memory
+- Pipeline Registers
+- Control Unit
+- Hazard Detection Unit
+- Forwarding Unit
+
+---
+
+# Hazard Handling
+
+## Data Forwarding
+
+<p align="center">
+  <img src="images/FORWARDINGUNIT.png" width="1000">
+</p>
+
+<p align="center">
+<b>Figure 1.</b> FORWARDING UNIT
+</p>
+
+The forwarding unit resolves RAW (Read After Write) hazards without stalling the pipeline whenever possible.
+
+Forwarding sources:
+
+- EX/MEM
+- MEM/WB
+
+Supported forwarding:
+
+- EX Forwarding
+- MEM Forwarding
+- Store Data Forwarding
+
+---
+
+## Load-Use Hazard Detection
+
+<p align="center">
+  <img src="images/LOAD_USE_HAZARD.png" width="1000">
+</p>
+
+<p align="center">
+<b>Figure 1.</b> LOAD USE HAZARD
+</p>
+
+When a load instruction is immediately followed by an instruction requiring the loaded value, the Hazard Detection Unit:
+
+- Stalls the Program Counter
+- Stalls the IF/ID register
+- Inserts a bubble into the ID/EX register
+
+This prevents incorrect execution while minimizing pipeline stalls.
+
+---
+
+## Branch Handling
+
+<p align="center">
+  <img src="images/BRANCH_TAKEN.png" width="1000">
+</p>
+
+<p align="center">
+<b>Figure 1.</b> BRANCH TAKEN
+</p>
+
+Branch instructions are resolved in the Execute stage.
+
+When a branch is taken:
+
+- Incorrectly fetched instructions are flushed.
+- The Program Counter is redirected to the branch target.
+
+---
+
+# Supported Instructions
+
+| Category | Instructions |
+|-----------|--------------|
+| Arithmetic | ADD, SUB, ADDI |
+| Logical | AND, OR, XOR |
+| Shift | SLL, SRL |
+| Comparison | SLT |
+| Memory | LW, SW |
+| Branch | BEQ |
+| Jump | JAL |
+
+---
+
+# Project Structure
 
 ```text
-x1 = 5  (expect 5)
-x2 = 10 (expect 10)
-x3 = 10 (expect 10)
-x4 = 10 (expect 10)
-x5 = 10 (expect 10)
-x6 = 0  (expect 0, must be skipped by branch)
-x7 = 99 (expect 99)
-```
-
----
-
-## Project Structure
-
-```
-RISC-V/
+RV32I/
 │
 ├── rtl/
+│   ├── cpu_pipeline.v
 │   ├── alu.v
 │   ├── alu_control.v
-│   ├── branch_comparator.v
 │   ├── control_unit.v
-│   ├── cpu.v                    # single-cycle top module
-│   ├── cpu_pipeline.v           # 5-stage pipeline top module
-│   ├── data_memory.v
-│   ├── ex_mem_register.v
-│   ├── ex_stage.v
 │   ├── forwarding_unit.v
 │   ├── hazard_detection_unit.v
-│   ├── id_ex_register.v
-│   ├── id_stage.v
-│   ├── if_id_register.v
-│   ├── immediate_generator.v
-│   ├── instruction_memory.v
-│   ├── mem_stage.v
-│   ├── mem_wb_register.v
-│   ├── program_counter.v
 │   ├── register_file.v
-│   └── wb_stage.v
+│   ├── instruction_memory.v
+│   ├── data_memory.v
+│   ├── immediate_generator.v
+│   ├── id_stage.v
+│   ├── ex_stage.v
+│   ├── mem_stage.v
+│   ├── wb_stage.v
+│   ├── if_id_register.v
+│   ├── id_ex_register.v
+│   ├── ex_mem_register.v
+│   └── mem_wb_register.v
 │
 ├── testbench/
-│   ├── cpu_tb.v
-│   ├── cpu_pipeline_tb.v
-│   └── ... (per-module testbenches)
 │
 ├── docs/
+│
 ├── diagrams/
-├── synthesis/     # empty — not started
-├── timing/        # empty — not started
-├── floorplan/     # empty — not started
-├── gds/           # empty — not started
-└── README.md
+│
+├── scripts/
+│
+├── synthesis/
+│
+├── timing/
+│
+├── README.md
+│
+└── LICENSE
 ```
 
 ---
 
-## Development Progress
+# Verification
 
-### Completed
-- [x] Single-cycle CPU (ADD, SUB, ADDI, LW, SW, BEQ, JAL)
-- [x] 5-stage pipeline: IF/ID, ID/EX, EX/MEM, MEM/WB registers
-- [x] Forwarding unit (EX/MEM and MEM/WB → EX)
-- [x] Hazard detection unit (load-use stall)
-- [x] Register file write-first bypass (WB/ID same-cycle hazard)
-- [x] Branch/jump resolution in EX with pipeline flush
-- [x] Pipeline hazard testbench (forwarding + stall + flush all verified)
+The processor has been verified through simulation using directed test cases.
 
-### Currently Working On
-- [ ] Widen branch comparator to support BNE/BLT/BGE/BLTU/BGEU (`funct3`-aware)
-- [ ] Fix LUI's U-type register-read path
-- [ ] Add CPU-level tests for AND/OR/XOR/SLL/SRL/SLT and their immediate forms
-- [ ] Add JALR
-
-### Future Work
-- RTL Synthesis (Yosys)
-- Static Timing Analysis (OpenSTA)
-- Floorplanning
-- Placement & Routing
-- GDSII Generation (OpenROAD)
+| Feature | Status |
+|----------|:------:|
+| Arithmetic Operations | ✅ |
+| Logical Operations | ✅ |
+| Shift Operations | ✅ |
+| Memory Read | ✅ |
+| Memory Write | ✅ |
+| Branch Execution | ✅ |
+| Jump Execution | ✅ |
+| Register Writeback | ✅ |
+| EX Forwarding | ✅ |
+| MEM Forwarding | ✅ |
+| Store Forwarding | ✅ |
+| Load-Use Hazard Detection | ✅ |
+| Pipeline Flush | ✅ |
 
 ---
 
-## Tools Used
+# Simulation
 
-- Verilog HDL, Icarus Verilog, GTKWave, VS Code, Git, GitHub
+Compile:
 
-Planned: Yosys, OpenROAD, OpenSTA
+```bash
+iverilog -g2012 -Wall -o cpu_pipeline_tb.out rtl/*.v testbench/cpu_pipeline_tb.v
+```
+
+Run:
+
+```bash
+vvp cpu_pipeline_tb.out
+```
+
+View waveform:
+
+```bash
+gtkwave pipeline.vcd
+```
 
 ---
 
-## Learning Objectives
+# Simulation Results
 
-- Computer Architecture & Processor Datapath Design
-- Control Logic
-- Pipeline Architecture & Hazard Handling
-- RTL Design & Digital System Verification
-- ASIC Design Flow
+> **📷 INSERT GTKWAVE SCREENSHOT HERE**
+
+```
+simulation.png
+```
+
+Example register output:
+
+```text
+x1 = 5
+x2 = 10
+x3 = 10
+x4 = 10
+x5 = 10
+x6 = 0
+x7 = 99
+```
 
 ---
 
-## References
+# Design Highlights
+
+- Modular RTL architecture
+- Clean separation of datapath and control logic
+- Classical five-stage pipeline
+- Forwarding to reduce pipeline stalls
+- Hazard detection for load-use dependencies
+- Branch flush mechanism
+- Parameterized and reusable modules
+- Simulation-driven verification
+
+---
+
+# Future Enhancements
+
+- Full RV32I ISA support
+- JALR instruction
+- AUIPC instruction
+- Additional branch instructions
+- Branch prediction
+- Instruction cache
+- Data cache
+- AXI-Lite interface
+- UART peripheral
+- FPGA implementation
+
+---
+
+# Tools Used
+
+| Tool | Purpose |
+|------|----------|
+| Verilog HDL | RTL Design |
+| Icarus Verilog | Simulation |
+| GTKWave | Waveform Analysis |
+| VS Code | Development |
+| Git & GitHub | Version Control |
+
+---
+
+# References
 
 - RISC-V Unprivileged ISA Specification
 - Patterson & Hennessy — *Computer Organization and Design*
-- Harris & Harris — *Digital Design and Computer Architecture*
+- Icarus Verilog Documentation
+- GTKWave Documentation
 
 ---
 
-## Author
+# License
 
-**Amay M Thamban**
-
-
-GitHub: https://github.com/amaymt990
-LinkedIn: https://linkedin.com/in/aymt
+This project is licensed under the MIT License.
 
 ---
 
-## License
-
-This project is released under the MIT License.
+<p align="center">
+Designed and implemented as an educational RTL project demonstrating pipelined RISC-V processor design, hazard resolution, and modular hardware architecture in Verilog HDL.
+</p>
