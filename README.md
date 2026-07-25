@@ -273,12 +273,6 @@ gtkwave pipeline.vcd
 
 # Simulation Results
 
-> **📷 INSERT GTKWAVE SCREENSHOT HERE**
-
-```
-simulation.png
-```
-
 Example register output:
 
 ```text
