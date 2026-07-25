@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module register_file(
 
     input clk,
@@ -17,8 +18,17 @@ module register_file(
 
 reg [31:0] registers [0:31];
 
-assign read_data1 = (rs1 == 5'd0) ? 32'd0 : registers[rs1];
-assign read_data2 = (rs2 == 5'd0) ? 32'd0 : registers[rs2];
+// Write-first bypass: if WB is writing the same register we're reading
+// this cycle, forward the write data instead of the stale array value.
+// (Needed because, in the pipeline, ID reads and WB writes happen on
+// the same clock edge for a register file modeled with a single array.)
+assign read_data1 = (rs1 == 5'd0) ? 32'd0 :
+                     (we && rd == rs1 && rd != 5'd0) ? write_data :
+                     registers[rs1];
+
+assign read_data2 = (rs2 == 5'd0) ? 32'd0 :
+                     (we && rd == rs2 && rd != 5'd0) ? write_data :
+                     registers[rs2];
 
 integer i;
 
