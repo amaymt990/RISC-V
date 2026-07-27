@@ -207,3 +207,6 @@ waveform inspection, not just the register values.
 - Fix LUI's register-read path (U-type has no `rs1`)
 - Add CPU-level tests for the ALU ops beyond ADD/SUB/ADDI
 - Start the Yosys synthesis flow on the single-cycle core
+
+
+V1-------x------- CLOSED
