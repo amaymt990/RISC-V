@@ -11,9 +11,22 @@ module control_unit(
     output reg MemtoReg,
     output reg Branch,
     output reg Jump,
-    output reg [1:0] ALUOp
+    output reg [1:0] ALUOp,
+
+    // Selects the EX stage's first ALU operand. Needed because AUIPC and
+    // LUI are U-type: their instruction[19:15] bits are part of the
+    // immediate, not a real source register, so the datapath can't just
+    // use "read_data1" for them like every other instruction.
+    //   00 = register (normal case, forwarding-aware)
+    //   01 = PC        (AUIPC: rd = pc + immediate)
+    //   10 = zero       (LUI: rd = 0 + immediate = immediate)
+    output reg [1:0] Op1Sel
 
 );
+
+localparam OP1_REG  = 2'b00;
+localparam OP1_PC   = 2'b01;
+localparam OP1_ZERO = 2'b10;
 
 always @(*) begin
 
@@ -26,6 +39,7 @@ always @(*) begin
     Branch   = 0;
     Jump     = 0;
     ALUOp    = 2'b00;
+    Op1Sel   = OP1_REG;
 
     case(opcode)
 
@@ -35,7 +49,7 @@ always @(*) begin
             ALUOp    = 2'b10;
         end
 
-        // I-Type
+        // I-Type ALU (ADDI/ANDI/ORI/XORI/SLTI/SLLI/SRLI/SRAI)
         7'b0010011: begin
             RegWrite = 1;
             ALUSrc   = 1;
@@ -58,7 +72,8 @@ always @(*) begin
             ALUOp    = 2'b00;
         end
 
-        // Branch
+        // Branch (BEQ/BNE/BLT/BGE/BLTU/BGEU all share this opcode --
+        // branch_comparator distinguishes them using funct3)
         7'b1100011: begin
             Branch = 1;
             ALUOp  = 2'b01;
@@ -70,10 +85,25 @@ always @(*) begin
             RegWrite = 1;
         end
 
-        // LUI
+        // LUI: rd = immediate
         7'b0110111: begin
             RegWrite = 1;
             ALUSrc   = 1;
+            Op1Sel   = OP1_ZERO;
+        end
+
+        // AUIPC: rd = pc + immediate
+        7'b0010111: begin
+            RegWrite = 1;
+            ALUSrc   = 1;
+            Op1Sel   = OP1_PC;
+        end
+
+        // FENCE: this pipeline is single-issue and in-order with no
+        // caching, so there is no memory reordering to fence against --
+        // architecturally a NOP. Explicit case kept for documentation;
+        // all default control signals already produce a NOP.
+        7'b0001111: begin
         end
 
     endcase

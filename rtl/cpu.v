@@ -44,11 +44,18 @@ wire MemtoReg;
 wire Branch;
 wire Jump;
 wire [1:0] ALUOp;
+wire [1:0] Op1Sel;
 
 // ALU Control
 wire [3:0] ALUCtrl;
+wire [31:0] alu_input_a;
 wire [31:0] alu_input_b;
 
+// AUIPC/LUI are U-type: instruction[19:15] is part of their immediate, not
+// a real rs1, so operand A must be overridden rather than using read_data1.
+assign alu_input_a  = (Op1Sel == 2'b01) ? pc :      // AUIPC
+                       (Op1Sel == 2'b10) ? 32'd0 :   // LUI
+                                            read_data1;
 assign alu_input_b   = ALUSrc ? immediate : read_data2;
 assign write_back_data =
     Jump     ? pc_plus_4 :
@@ -88,7 +95,8 @@ control_unit control(
     .MemtoReg(MemtoReg),
     .Branch(Branch),
     .Jump(Jump),
-    .ALUOp(ALUOp)
+    .ALUOp(ALUOp),
+    .Op1Sel(Op1Sel)
 
 );
 
@@ -121,6 +129,7 @@ alu_control alu_ctrl(
     .ALUOp(ALUOp),
     .funct3(instruction[14:12]),
     .funct7(instruction[31:25]),
+    .is_itype(ALUSrc),
 
     .ALUCtrl(ALUCtrl)
 
@@ -129,7 +138,7 @@ alu_control alu_ctrl(
 
 alu alu_unit(
 
-    .a(read_data1),
+    .a(alu_input_a),
     .b(alu_input_b),
     .alu_control(ALUCtrl),
 
@@ -158,6 +167,7 @@ branch_comparator branch_cmp(
 
     .rs1_data(read_data1),
     .rs2_data(read_data2),
+    .funct3(instruction[14:12]),
 
     .branch_taken(branch_taken)
 

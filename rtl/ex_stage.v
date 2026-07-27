@@ -12,6 +12,7 @@ module ex_stage(
 
     input ALUSrc,
     input [1:0] ALUOp,
+    input [1:0] Op1Sel,   // 00=register, 01=PC (AUIPC), 10=zero (LUI)
 
     // Forwarding control (from forwarding_unit)
     input [1:0] forwardA,
@@ -28,6 +29,7 @@ module ex_stage(
 
 );
 
+wire [31:0] operand1_fwd;
 wire [31:0] operand1;
 wire [31:0] operand2_base;   // forwarded rs2, before the ALUSrc/immediate mux
 wire [31:0] operand2;
@@ -40,9 +42,17 @@ wire [3:0] alu_ctrl;
 // 2'b10 = forward from EX/MEM (previous instruction's ALU result)
 // 2'b01 = forward from MEM/WB (instruction two ahead, about to write back)
 
-assign operand1 = (forwardA == 2'b10) ? ex_mem_alu_result :
-                   (forwardA == 2'b01) ? wb_write_back_data :
-                                         read_data1;
+assign operand1_fwd = (forwardA == 2'b10) ? ex_mem_alu_result :
+                       (forwardA == 2'b01) ? wb_write_back_data :
+                                             read_data1;
+
+// AUIPC and LUI are U-type: instruction[19:15] is part of their immediate,
+// not a real rs1, so forwarding into operand1 must be overridden for them
+// regardless of what the (meaningless, for these instructions) forwarding
+// comparison happened to produce.
+assign operand1 = (Op1Sel == 2'b01) ? pc :      // AUIPC
+                   (Op1Sel == 2'b10) ? 32'd0 :   // LUI
+                                       operand1_fwd;
 
 assign operand2_base = (forwardB == 2'b10) ? ex_mem_alu_result :
                         (forwardB == 2'b01) ? wb_write_back_data :
@@ -66,6 +76,7 @@ alu_control alu_ctrl_unit(
     .ALUOp(ALUOp),
     .funct3(funct3),
     .funct7(funct7),
+    .is_itype(ALUSrc),
 
     .ALUCtrl(alu_ctrl)
 
@@ -97,6 +108,7 @@ branch_comparator bc(
 
     .rs1_data(operand1),
     .rs2_data(operand2_base),
+    .funct3(funct3),
 
     .branch_taken(branch_taken)
 

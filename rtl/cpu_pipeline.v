@@ -38,6 +38,7 @@ wire [6:0]  id_funct7;
 wire        id_RegWrite, id_ALUSrc, id_MemRead, id_MemWrite;
 wire        id_MemtoReg, id_Branch, id_Jump;
 wire [1:0]  id_ALUOp;
+wire [1:0]  id_Op1Sel;
 
 // ID/EX register
 wire [31:0] id_ex_pc, id_ex_read_data1, id_ex_read_data2, id_ex_immediate;
@@ -47,6 +48,7 @@ wire [6:0]  id_ex_funct7;
 wire        id_ex_RegWrite, id_ex_ALUSrc, id_ex_MemRead, id_ex_MemWrite;
 wire        id_ex_MemtoReg, id_ex_Branch, id_ex_Jump;
 wire [1:0]  id_ex_ALUOp;
+wire [1:0]  id_ex_Op1Sel;
 
 // EX stage
 wire [31:0] ex_alu_result, ex_branch_target, ex_store_data, ex_pc_plus4;
@@ -143,7 +145,8 @@ id_stage ID(
     .MemtoReg(id_MemtoReg),
     .Branch(id_Branch),
     .Jump(id_Jump),
-    .ALUOp(id_ALUOp)
+    .ALUOp(id_ALUOp),
+    .Op1Sel(id_Op1Sel)
 );
 
 //========================================================================
@@ -191,6 +194,7 @@ id_ex_register ID_EX(
     .Branch_in(id_Branch),
     .Jump_in(id_Jump),
     .ALUOp_in(id_ALUOp),
+    .Op1Sel_in(id_Op1Sel),
 
     .pc_out(id_ex_pc),
     .read_data1_out(id_ex_read_data1),
@@ -211,7 +215,8 @@ id_ex_register ID_EX(
     .MemtoReg_out(id_ex_MemtoReg),
     .Branch_out(id_ex_Branch),
     .Jump_out(id_ex_Jump),
-    .ALUOp_out(id_ex_ALUOp)
+    .ALUOp_out(id_ex_ALUOp),
+    .Op1Sel_out(id_ex_Op1Sel)
 );
 
 //========================================================================
@@ -247,6 +252,7 @@ ex_stage EX(
 
     .ALUSrc(id_ex_ALUSrc),
     .ALUOp(id_ex_ALUOp),
+    .Op1Sel(id_ex_Op1Sel),
 
     .forwardA(forwardA),
     .forwardB(forwardB),
