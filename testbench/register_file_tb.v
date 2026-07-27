@@ -3,6 +3,7 @@
 module register_file_tb;
 
     reg clk;
+    reg reset;
     reg we;
 
     reg [4:0] rs1;
@@ -17,6 +18,7 @@ module register_file_tb;
     // Instantiate Register File
     register_file uut (
         .clk(clk),
+        .reset(reset),
         .we(we),
         .rs1(rs1),
         .rs2(rs2),
@@ -35,6 +37,7 @@ module register_file_tb;
         initial begin
 
         // Initialize signals
+        reset = 0;
         we = 0;
         rs1 = 0;
         rs2 = 0;
@@ -79,6 +82,16 @@ module register_file_tb;
         rs1 = 0;
         #10;
         $display("x0 = %d", read_data1);
+
+        // Write-first bypass: writing and reading the same register in
+        // the same cycle should return the new value, not the stale one
+        // (this is what makes WB-writes-while-ID-reads safe in the pipeline)
+        we = 1;
+        rd = 5;
+        rs1 = 5;
+        write_data = 777;
+        #10;
+        $display("x5 (same-cycle write-first read) = %d (expect 777)", read_data1);
 
         $finish;
     end

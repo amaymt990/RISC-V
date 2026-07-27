@@ -28,6 +28,7 @@ module id_ex_register(
     input Branch_in,
     input Jump_in,
     input [1:0] ALUOp_in,
+    input [1:0] Op1Sel_in,
  
 
     // Outputs
@@ -50,7 +51,8 @@ module id_ex_register(
     output reg MemtoReg_out,
     output reg Branch_out,
     output reg Jump_out,
-    output reg [1:0] ALUOp_out
+    output reg [1:0] ALUOp_out,
+    output reg [1:0] Op1Sel_out
     
 );
 
@@ -78,6 +80,7 @@ always @(posedge clk or posedge reset) begin
         Branch_out <= 0;
         Jump_out <= 0;
         ALUOp_out <= 0;
+        Op1Sel_out <= 0;
         
 
     end
@@ -103,6 +106,7 @@ always @(posedge clk or posedge reset) begin
         Branch_out <= Branch_in;
         Jump_out <= Jump_in;
         ALUOp_out <= ALUOp_in;
+        Op1Sel_out <= Op1Sel_in;
         
 
     end
