@@ -43,6 +43,7 @@ wire MemWrite;
 wire MemtoReg;
 wire Branch;
 wire Jump;
+wire JALR;
 wire [1:0] ALUOp;
 wire [1:0] Op1Sel;
 
@@ -62,7 +63,11 @@ assign write_back_data =
     MemtoReg ? memory_data :
                alu_result;
 assign pc_plus_4     = pc + 4;
-assign branch_target = pc + immediate;
+
+// branch_target is (pc + immediate) for branches and JAL, but for JALR
+// it's (alu_input_a + immediate) with the LSB cleared per the RISC-V spec.
+assign branch_target = JALR ? ((alu_input_a + immediate) & ~32'd1)
+                             : (pc + immediate);
 assign next_pc =
     Jump ? branch_target :
     (Branch && branch_taken) ? branch_target :
@@ -95,6 +100,7 @@ control_unit control(
     .MemtoReg(MemtoReg),
     .Branch(Branch),
     .Jump(Jump),
+    .JALR(JALR),
     .ALUOp(ALUOp),
     .Op1Sel(Op1Sel)
 

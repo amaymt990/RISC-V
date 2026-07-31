@@ -46,7 +46,7 @@ always @(*) begin
                 3'b000: ALUCtrl = sub_alt ? 4'b0001 : 4'b0000;    // SUB : ADD
                 3'b001: ALUCtrl = 4'b0101;                        // SLL
                 3'b010: ALUCtrl = 4'b0111;                        // SLT
-                3'b011: ALUCtrl = 4'b0000;                        // SLTU -- not yet implemented, falls back to ADD (known gap)
+                3'b011: ALUCtrl = 4'b1001;                        // SLTU
                 3'b100: ALUCtrl = 4'b0100;                        // XOR
                 3'b101: ALUCtrl = shift_alt ? 4'b1000 : 4'b0110;  // SRA : SRL
                 3'b110: ALUCtrl = 4'b0011;                        // OR

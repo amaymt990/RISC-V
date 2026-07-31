@@ -31,6 +31,7 @@ module id_stage(
     output MemtoReg,
     output Branch,
     output Jump,
+    output JALR,
     output [1:0] ALUOp,
     output [1:0] Op1Sel
 
@@ -64,6 +65,7 @@ control_unit cu(
     .MemtoReg(MemtoReg),
     .Branch(Branch),
     .Jump(Jump),
+    .JALR(JALR),
     .ALUOp(ALUOp),
     .Op1Sel(Op1Sel)
 

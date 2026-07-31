@@ -1,4 +1,3 @@
-`timescale 1ns/1ps
 module alu (
     input  [31:0] a,
     input  [31:0] b,
@@ -30,6 +29,8 @@ always @(*) begin
                             : 32'd0;                     // SLT
 
         4'b1000: result = $signed(a) >>> b[4:0];         // SRA
+
+        4'b1001: result = (a < b) ? 32'd1 : 32'd0;       // SLTU (unsigned compare)
 
         default: result = 32'd0;
 

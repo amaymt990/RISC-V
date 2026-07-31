@@ -1,0 +1,28 @@
+# Generic synthesis of the pipelined RV32I core
+# Run from the repo root: yowasp-yosys -s synthesis/synth_pipeline.ys
+read_verilog -sv synthesis/cpu_pipeline_synth_top.v
+read_verilog -sv rtl/program_counter.v
+read_verilog -sv rtl/instruction_memory.v
+read_verilog -sv rtl/if_id_register.v
+read_verilog -sv rtl/id_stage.v
+read_verilog -sv rtl/id_ex_register.v
+read_verilog -sv rtl/forwarding_unit.v
+read_verilog -sv rtl/hazard_detection_unit.v
+read_verilog -sv rtl/ex_stage.v
+read_verilog -sv rtl/ex_mem_register.v
+read_verilog -sv rtl/mem_stage.v
+read_verilog -sv rtl/mem_wb_register.v
+read_verilog -sv rtl/wb_stage.v
+read_verilog -sv rtl/register_file.v
+read_verilog -sv rtl/control_unit.v
+read_verilog -sv rtl/immediate_generator.v
+read_verilog -sv rtl/alu_control.v
+read_verilog -sv rtl/alu.v
+read_verilog -sv rtl/data_memory.v
+read_verilog -sv rtl/branch_comparator.v
+
+hierarchy -top cpu_pipeline
+synth -top cpu_pipeline
+
+write_rtlil synthesis/cpu_pipeline_synth.rtlil
+write_verilog -noattr synthesis/cpu_pipeline_synth.v

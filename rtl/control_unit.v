@@ -11,6 +11,7 @@ module control_unit(
     output reg MemtoReg,
     output reg Branch,
     output reg Jump,
+    output reg JALR,   // 1 = jump target is (rs1 + immediate), not (pc + immediate)
     output reg [1:0] ALUOp,
 
     // Selects the EX stage's first ALU operand. Needed because AUIPC and
@@ -38,6 +39,7 @@ always @(*) begin
     MemtoReg = 0;
     Branch   = 0;
     Jump     = 0;
+    JALR     = 0;
     ALUOp    = 2'b00;
     Op1Sel   = OP1_REG;
 
@@ -83,6 +85,15 @@ always @(*) begin
         7'b1101111: begin
             Jump     = 1;
             RegWrite = 1;
+        end
+
+        // JALR: rd = pc+4, target = (rs1 + immediate) & ~1
+        // Op1Sel stays REG (default) -- JALR has a real rs1, unlike AUIPC/LUI
+        7'b1100111: begin
+            Jump     = 1;
+            JALR     = 1;
+            RegWrite = 1;
+            ALUSrc   = 1;
         end
 
         // LUI: rd = immediate

@@ -27,6 +27,7 @@ module id_ex_register(
     input MemtoReg_in,
     input Branch_in,
     input Jump_in,
+    input JALR_in,
     input [1:0] ALUOp_in,
     input [1:0] Op1Sel_in,
  
@@ -51,6 +52,7 @@ module id_ex_register(
     output reg MemtoReg_out,
     output reg Branch_out,
     output reg Jump_out,
+    output reg JALR_out,
     output reg [1:0] ALUOp_out,
     output reg [1:0] Op1Sel_out
     
@@ -58,7 +60,7 @@ module id_ex_register(
 
 always @(posedge clk or posedge reset) begin
 
-    if(reset || flush) begin
+    if(reset) begin
 
         pc_out <= 0;
         read_data1_out <= 0;
@@ -79,9 +81,43 @@ always @(posedge clk or posedge reset) begin
         MemtoReg_out <= 0;
         Branch_out <= 0;
         Jump_out <= 0;
+        JALR_out <= 0;
         ALUOp_out <= 0;
         Op1Sel_out <= 0;
-        
+
+    end
+    else if(flush) begin
+
+        // Synchronous bubble insertion (load-use stall or branch/jump
+        // taken) -- same zeroed values as reset, but triggered on the
+        // clock edge rather than asynchronously. Kept as its own branch
+        // (rather than `if (reset || flush)`) because combining the
+        // async reset condition with a synchronous one in a single `||`
+        // confuses synthesis tools' async/sync reset inference, even
+        // though it simulates identically either way.
+
+        pc_out <= 0;
+        read_data1_out <= 0;
+        read_data2_out <= 0;
+        immediate_out <= 0;
+
+        rs1_out <= 0;
+        rs2_out <= 0;
+        rd_out <= 0;
+
+        funct3_out <= 0;
+        funct7_out <= 0;
+
+        RegWrite_out <= 0;
+        ALUSrc_out <= 0;
+        MemRead_out <= 0;
+        MemWrite_out <= 0;
+        MemtoReg_out <= 0;
+        Branch_out <= 0;
+        Jump_out <= 0;
+        JALR_out <= 0;
+        ALUOp_out <= 0;
+        Op1Sel_out <= 0;
 
     end
     else begin
@@ -105,6 +141,7 @@ always @(posedge clk or posedge reset) begin
         MemtoReg_out <= MemtoReg_in;
         Branch_out <= Branch_in;
         Jump_out <= Jump_in;
+        JALR_out <= JALR_in;
         ALUOp_out <= ALUOp_in;
         Op1Sel_out <= Op1Sel_in;
         

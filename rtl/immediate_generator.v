@@ -15,7 +15,8 @@ always @(*) begin
 
         // I-Type
         7'b0010011,
-        7'b0000011:
+        7'b0000011,
+        7'b1100111:
             immediate = {{20{instruction[31]}}, instruction[31:20]};
 
         // S-Type

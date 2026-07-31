@@ -13,6 +13,7 @@ module ex_stage(
     input ALUSrc,
     input [1:0] ALUOp,
     input [1:0] Op1Sel,   // 00=register, 01=PC (AUIPC), 10=zero (LUI)
+    input JALR,            // 1 = jump target is (operand1 + immediate) & ~1
 
     // Forwarding control (from forwarding_unit)
     input [1:0] forwardA,
@@ -64,7 +65,11 @@ assign operand2_base = (forwardB == 2'b10) ? ex_mem_alu_result :
 
 assign operand2    = ALUSrc ? immediate : operand2_base;
 assign store_data  = operand2_base;      // SW always stores the (forwarded) rs2 value
-assign branch_target = pc + immediate;
+
+// branch_target is (pc + immediate) for branches and JAL, but for JALR
+// it's (operand1 + immediate) with the LSB cleared per the RISC-V spec.
+assign branch_target = JALR ? ((operand1 + immediate) & ~32'd1)
+                             : (pc + immediate);
 assign pc_plus4     = pc + 32'd4;
 
 //-----------------------------------------
