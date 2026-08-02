@@ -1,0 +1,37 @@
+# Synthesis mapped to the real sky130_fd_sc_hd standard cell library.
+# Run from the repo root, after the sky130 PDK has been downloaded --
+# see SYNTHESIS_REPORT_SKY130.md for exact download commands.
+#
+# Usage: yowasp-yosys -s synthesis/sky130/synth_sky130.ys
+#
+# Set PDK_LIB below to wherever you extracted sky130_fd_sc_hd's lib/ folder.
+
+read_verilog -sv synthesis/cpu_pipeline_synth_top.v
+read_verilog -sv rtl/program_counter.v
+read_verilog -sv rtl/instruction_memory.v
+read_verilog -sv rtl/if_id_register.v
+read_verilog -sv rtl/id_stage.v
+read_verilog -sv rtl/id_ex_register.v
+read_verilog -sv rtl/forwarding_unit.v
+read_verilog -sv rtl/hazard_detection_unit.v
+read_verilog -sv rtl/ex_stage.v
+read_verilog -sv rtl/ex_mem_register.v
+read_verilog -sv rtl/mem_stage.v
+read_verilog -sv rtl/mem_wb_register.v
+read_verilog -sv rtl/wb_stage.v
+read_verilog -sv rtl/register_file.v
+read_verilog -sv rtl/control_unit.v
+read_verilog -sv rtl/immediate_generator.v
+read_verilog -sv rtl/alu_control.v
+read_verilog -sv rtl/alu.v
+read_verilog -sv rtl/data_memory.v
+read_verilog -sv rtl/branch_comparator.v
+
+hierarchy -top cpu_pipeline
+synth -top cpu_pipeline
+
+dfflibmap -liberty pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+write_verilog -noattr synthesis/sky130/cpu_pipeline_sky130.v
+write_rtlil synthesis/sky130/cpu_pipeline_sky130.rtlil
