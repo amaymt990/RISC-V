@@ -1,3 +1,5 @@
 *.vcd
 *.out
 a.out
+synthesis/cpu_pipeline_synth.v
+synthesis/cpu_pipeline_synth.rtlil
